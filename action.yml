@@ -16,8 +16,8 @@ inputs:
     default: "true"
     required: false
   version:
-    description: "secretgate version/tag to fetch, e.g. 'v1.1.0' or 'main'."
-    default: "v1.1.0"
+    description: "secretgate version/tag to fetch, e.g. 'v1.2.0' or 'main'."
+    default: "v1.2.0"
     required: false
 
 outputs:
