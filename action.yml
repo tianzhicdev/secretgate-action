@@ -1,0 +1,65 @@
+name: "secretgate"
+description: "Scan your repo for leaked secrets with secretgate — zero-install, single file, stdlib Python."
+author: "tianzhicdev"
+
+inputs:
+  scan:
+    description: "What to scan: 'working' (tracked+untracked files), 'staged' (staged diff), 'history' (all git blobs)."
+    default: "working"
+    required: false
+  path:
+    description: "Path to scan when scan=working (default repo root)."
+    default: "."
+    required: false
+  fail:
+    description: "'true' = fail the job on findings, 'false' = report only (annotations still posted)."
+    default: "true"
+    required: false
+  version:
+    description: "secretgate version/tag to fetch, e.g. 'v1.1.0' or 'main'."
+    default: "v1.1.0"
+    required: false
+
+outputs:
+  findings:
+    description: "Number of findings."
+    value: ${{ steps.scan.outputs.findings }}
+
+branding:
+  icon: shield
+  color: red
+
+runs:
+  using: "composite"
+  steps:
+    - name: Fetch secretgate
+      shell: bash
+      run: |
+        set -euo pipefail
+        dest="${RUNNER_TEMP}/secretgate.py"
+        url="https://raw.githubusercontent.com/tianzhicdev/secretgate/refs/tags/${{ inputs.version }}/secretgate.py"
+        if ! curl -fsSL "$url" -o "$dest"; then
+          curl -fsSL "https://raw.githubusercontent.com/tianzhicdev/secretgate/main/secretgate.py" -o "$dest"
+        fi
+        echo "SG=$dest" >> "$GITHUB_ENV"
+
+    - name: Scan
+      id: scan
+      shell: bash
+      env:
+        SG_JSON_OUT: ${{ runner.temp }}/sg.json
+      run: |
+        set -uo pipefail
+        ARGS=(scan --json)
+        case "${{ inputs.scan }}" in
+          staged)  ARGS+=(--staged) ;;
+          history) ARGS+=(--history) ;;
+          *)       ARGS+=("${{ inputs.path }}") ;;
+        esac
+        python3 "$SG" "${ARGS[@]}" > "$SG_JSON_OUT" || true
+        n=$(python3 "$GITHUB_ACTION_PATH/summarize.py" "$SG_JSON_OUT" "$GITHUB_STEP_SUMMARY")
+        echo "findings=$n" >> "$GITHUB_OUTPUT"
+        if [ "${n:-0}" -gt 0 ] && [ "${{ inputs.fail }}" = "true" ]; then
+          echo "::error::secretgate found $n possible secret(s) — see job summary"
+          exit 1
+        fi
