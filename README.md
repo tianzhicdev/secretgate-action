@@ -83,6 +83,20 @@ The receipts are re-verified in CI on every change to `proofs/` via
 ethkey-lite's reusable workflow. This repo runs its own action on itself
 (`secrets.yml`) and its own receipt gate (`verify-release.yml`).
 
+**Negative controls:** a "verified" badge means nothing unless the same code
+*fails* the attacks. Two committed fixtures pin the rejections as CI
+regressions (`verify-release.yml`, `negative-controls` job):
+`proofs/c23-forged-signer-fixture.md` carries a **valid** signature by a
+throwaway key with a **forged** `signer:` header claiming the maintainer
+address above, and `proofs/c23-throwaway-signed-fixture.md` is a genuine
+receipt by that throwaway key. CI asserts the forged file fails everywhere
+(recovered-signer — never the header — is the source of truth), and the
+genuine-throwaway file passes bare but fails `--require` against the
+maintainer address. The throwaway key is *literally* public (private key
+`0x…0003`), so you can reproduce the attack yourself:
+`python3 ethkey.py verify proofs/c23-forged-signer-fixture.md --require 0xFD40…acC15`
+must exit 1.
+
 ## Why not just gitleaks?
 
 gitleaks/trufflehog are great but mean a binary/toolchain install per pipeline.
