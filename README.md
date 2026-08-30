@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tianzhicdev/secretgate-action@v1.1.0
+      - uses: tianzhicdev/secretgate-action@v1.2.0
 ```
 
 Report-only mode (annotations + job summary, never fails):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.1.0
+      - uses: tianzhicdev/secretgate-action@v1.2.0
         with:
           fail: "false"
 ```
@@ -30,7 +30,7 @@ Report-only mode (annotations + job summary, never fails):
 Scan full git history (every blob ever committed):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.1.0
+      - uses: tianzhicdev/secretgate-action@v1.2.0
         with:
           scan: history
           fail: "false"
@@ -43,7 +43,7 @@ Scan full git history (every blob ever committed):
 | `scan` | `working` | `working` = tracked+untracked files, `staged` = staged diff, `history` = all git blobs |
 | `path` | `.` | Subdirectory to scan when `scan: working` |
 | `fail` | `true` | Fail the job on findings (`false` = annotations + summary only) |
-| `version` | `v1.1.0` | secretgate tag to fetch (falls back to `main`) |
+| `version` | `v1.2.0` | secretgate tag to fetch (falls back to `main`) |
 
 ## Outputs
 
@@ -57,7 +57,10 @@ Scan full git history (every blob ever committed):
 - A **job summary** table (severity, file, line, rule, truncated preview).
 - Exit code 1 when findings exist and `fail: true`.
 
-Mark a known-safe line with `# secretgate: allow` to skip it.
+Mark a known-safe line with `# secretgate: allow` to skip it. To exempt whole
+paths (e.g. a `proofs/` dir with signed base64 payloads), add a
+`.secretgateignore` at the repo root — gitignore-style globs; `--history`
+scans stay strict by design.
 
 ## Why not just gitleaks?
 
