@@ -62,6 +62,23 @@ paths (e.g. a `proofs/` dir with signed base64 payloads), add a
 `.secretgateignore` at the repo root — gitignore-style globs; `--history`
 scans stay strict by design.
 
+## Release receipts
+
+Every release attaches self-contained signed receipts
+(`*-<tag>-proof.md`): [ethkey-lite](https://github.com/tianzhicdev/ethkey-lite)
+proofs with the pinned file embedded (base64), signed via EIP-191 by the
+maintainer key — `action.yml` and `summarize.py` are each covered. One command
+verifies the file you downloaded came from this repo's maintainer:
+
+```
+python3 ethkey.py verify secretgate-action-v1.2.0-proof.md \
+  --require 0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15   # exit 0 == authentic
+```
+
+The receipts are re-verified in CI on every change to `proofs/` via
+ethkey-lite's reusable workflow. This repo runs its own action on itself
+(`secrets.yml`) and its own receipt gate (`verify-release.yml`).
+
 ## Why not just gitleaks?
 
 gitleaks/trufflehog are great but mean a binary/toolchain install per pipeline.
