@@ -34,10 +34,19 @@ runs:
   steps:
     - name: Fetch secretgate
       shell: bash
+      # Inputs are untrusted strings: never interpolate ${{ }} into the script
+      # body (injection class hardened fleet-wide). Env indirection + a strict
+      # charset allowlist; anything else exits 2 with the value shown as DATA.
+      env:
+        SG_VERSION: ${{ inputs.version }}
       run: |
         set -euo pipefail
+        if ! [[ "$SG_VERSION" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+          echo "::error::invalid version input '$SG_VERSION' (allowed: letters, digits, dot, dash, underscore, slash)" >&2
+          exit 2
+        fi
         dest="${RUNNER_TEMP}/secretgate.py"
-        url="https://raw.githubusercontent.com/tianzhicdev/secretgate/refs/tags/${{ inputs.version }}/secretgate.py"
+        url="https://raw.githubusercontent.com/tianzhicdev/secretgate/refs/tags/${SG_VERSION}/secretgate.py"
         if ! curl -fsSL "$url" -o "$dest"; then
           curl -fsSL "https://raw.githubusercontent.com/tianzhicdev/secretgate/main/secretgate.py" -o "$dest"
         fi
@@ -46,20 +55,39 @@ runs:
     - name: Scan
       id: scan
       shell: bash
+      # scan/fail are validated against CLOSED sets; path is passed as a quoted
+      # array element from env (data, never code) and rejected if it contains
+      # control/ANSI/quote chars that could smuggle flags into the CLI.
       env:
         SG_JSON_OUT: ${{ runner.temp }}/sg.json
+        SG_SCAN: ${{ inputs.scan }}
+        SG_FAIL: ${{ inputs.fail }}
+        SG_PATH: ${{ inputs.path }}
       run: |
         set -uo pipefail
+        case "$SG_SCAN" in
+          staged|history|working) ;;
+          *) echo "::error::invalid scan input '$SG_SCAN' (allowed: working, staged, history)" >&2; exit 2 ;;
+        esac
+        case "$SG_FAIL" in
+          true|false) ;;
+          *) echo "::error::invalid fail input '$SG_FAIL' (allowed: true, false)" >&2; exit 2 ;;
+        esac
+        if [[ "$SG_PATH" =~ [[:cntrl:]]|[\"\'\\\$\`] ]]; then
+          echo "::error::invalid path input (control/quote characters)" >&2
+          exit 2
+        fi
         ARGS=(scan --json)
-        case "${{ inputs.scan }}" in
+        case "$SG_SCAN" in
           staged)  ARGS+=(--staged) ;;
           history) ARGS+=(--history) ;;
-          *)       ARGS+=("${{ inputs.path }}") ;;
+          *)       ARGS+=("$SG_PATH") ;;
         esac
         python3 "$SG" "${ARGS[@]}" > "$SG_JSON_OUT" || true
         n=$(python3 "$GITHUB_ACTION_PATH/summarize.py" "$SG_JSON_OUT" "$GITHUB_STEP_SUMMARY")
+        n=${n:-0}   # never publish an empty/non-integer 'findings' output
         echo "findings=$n" >> "$GITHUB_OUTPUT"
-        if [ "${n:-0}" -gt 0 ] && [ "${{ inputs.fail }}" = "true" ]; then
+        if [ "$n" -gt 0 ] && [ "$SG_FAIL" = "true" ]; then
           echo "::error::secretgate found $n possible secret(s) — see job summary"
           exit 1
         fi
