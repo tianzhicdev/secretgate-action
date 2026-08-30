@@ -16,10 +16,14 @@ def main() -> int:
 
     for f in findings:
         sev = str(f.get("severity", "high")).upper()
+        # Annotations go to stderr: callers capture OUR STDOUT for the finding
+        # count (`n=$(python3 summarize.py ...)`), so any '::warning' line
+        # printed to stdout lands inside $n and breaks the numeric test.
         print(
             f"::warning file={f.get('path', '?')},line={f.get('line', 1)},"
             f"title=secretgate {f.get('rule', 'secret')}::"
-            f"[{sev}] possible secret: {f.get('secret_preview', '')}"
+            f"[{sev}] possible secret: {f.get('secret_preview', '')}",
+            file=sys.stderr,
         )
 
     with open(summary_path, "a") as summ:
