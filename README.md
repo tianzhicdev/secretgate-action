@@ -57,7 +57,9 @@ Scan full git history (every blob ever committed):
 - A **job summary** table (severity, file, line, rule, truncated preview).
 - Exit code 1 when findings exist and `fail: true`.
 
-Mark a known-safe line with `# secretgate: allow` to skip it. To exempt whole
+Mark a known-safe line with `# secretgate: allow` **on the same line** as the
+finding (it never applies to neighboring lines; `nosec` and `do not flag` work
+too). To exempt whole
 paths (e.g. a `proofs/` dir with signed base64 payloads), add a
 `.secretgateignore` at the repo root — gitignore-style globs; `--history`
 scans stay strict by design.
