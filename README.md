@@ -65,6 +65,14 @@ gitleaks/trufflehog are great but mean a binary/toolchain install per pipeline.
 This action downloads **one reviewed Python file** with zero dependencies and
 runs it. Pin to a tag; diff the file if you like — it's 300 lines.
 
+## Ecosystem
+
+Part of a small family of zero-dependency tip-jar tools:
+
+- [secretgate](https://github.com/tianzhicdev/secretgate) — the zero-dependency secret scanner this action fetches and runs.
+- [hookpack](https://github.com/tianzhicdev/hookpack) — git hooks manager whose `secretscan` hook runs secretgate locally as a pre-commit check.
+- [ethkey-lite](https://github.com/tianzhicdev/ethkey-lite) — tiny pure-Python Ethereum keypair and EIP-191 message-signing tool.
+
 ## License
 
 MIT (same as secretgate).
