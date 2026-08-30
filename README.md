@@ -76,7 +76,7 @@ python3 ethkey.py verify secretgate-action-v1.2.0-proof.md \
 ```
 
 No Python handy? Paste a receipt into the
-[browser verifier](https://tianzhicdev.github.io/ethkey-lite/receipt.html?require=0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15)
+[browser verifier](https://tianzhicdev.github.io/ethkey-lite/receipt.html?require=0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15) <!-- secretgate: allow public tip addr -->
 — the link pre-fills the maintainer address, so verification is paste + go.
 
 The receipts are re-verified in CI on every change to `proofs/` via
