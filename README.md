@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tianzhicdev/secretgate-action@v1.2.2
+      - uses: tianzhicdev/secretgate-action@v1.2.3
 ```
 
 Report-only mode (annotations + job summary, never fails):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.2.2
+      - uses: tianzhicdev/secretgate-action@v1.2.3
         with:
           fail: "false"
 ```
@@ -30,7 +30,7 @@ Report-only mode (annotations + job summary, never fails):
 Scan full git history (every blob ever committed):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.2.2
+      - uses: tianzhicdev/secretgate-action@v1.2.3
         with:
           scan: history
           fail: "false"
@@ -43,7 +43,7 @@ Scan full git history (every blob ever committed):
 | `scan` | `working` | `working` = tracked+untracked files, `staged` = staged diff, `history` = all git blobs |
 | `path` | `.` | Subdirectory to scan when `scan: working` |
 | `fail` | `true` | Fail the job on findings (`false` = annotations + summary only) |
-| `version` | `v1.2.0` | secretgate tag to fetch (falls back to `main`) |
+| `version` | `v1.2.1` | secretgate tag to fetch (falls back to `main`) |
 
 ## Outputs
 
@@ -73,7 +73,7 @@ maintainer key — `action.yml` and `summarize.py` are each covered. One command
 verifies the file you downloaded came from this repo's maintainer:
 
 ```
-python3 ethkey.py verify action-v1.2.2-proof.md \
+python3 ethkey.py verify action-v1.2.3-proof.md \
   --require 0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15   # exit 0 == authentic
 ```
 
