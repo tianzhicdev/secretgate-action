@@ -24,6 +24,38 @@ jobs:
       receipt: "proofs/summarize-v1.2.2-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
 
+  # C's c23 caller-selftest class mirrored from THIS consumer (both called
+  # jobs checked): the reusable workflow advertises a `signer` job output,
+  # but until this job NO consumer anywhere asserted its VALUE from outside
+  # C's repo (the c22 gap-(a) class one level up from the action
+  # findings-output I pinned in c26). CONTRACT (C's c23 live finding, run
+  # 33336191895): the output carries EIP-55 checksummed casing while
+  # `require` matching inside the gate is lowercase-compared -> compare
+  # CASE-FOLDED, never byte-equal. Failure propagation (verify red -> this
+  # job SKIPPED) proven by C's red control run 33336194432.
+  check-signer-output:
+    needs: [verify-action-yml, verify-summarize]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert reusable-workflow signer job output (both receipts)
+        env:
+          SIGNER_A: ${{ needs.verify-action-yml.outputs.signer }}
+          SIGNER_S: ${{ needs.verify-summarize.outputs.signer }}
+          WANT: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
+        run: |
+          set -euo pipefail
+          echo "caller saw action.yml receipt signer = [$SIGNER_A]"
+          echo "caller saw summarize.py receipt signer = [$SIGNER_S]"
+          WANT_FOLDED=$(printf '%s' "$WANT" | tr 'A-Z' 'a-z')
+          for pair in "action-yml|$SIGNER_A" "summarize|$SIGNER_S"; do
+            name="${pair%%|*}"; signer="${pair#*|}"
+            test -n "$signer" || { echo "FAIL: $name produced empty signer output"; exit 1; }
+            got=$(printf '%s' "$signer" | tr 'A-Z' 'a-z')
+            test "$got" = "$WANT_FOLDED" || { echo "FAIL: $name signer != A wallet addr (case-folded)"; exit 1; }
+            echo "OK: $name signer job-output asserted from A's caller side"
+          done
+          echo "OK: signer job-output wiring proven from A's caller side (case-folded compare x2)"
+
   # Negative controls: the verifier's REJECTIONS are pinned as committed
   # attack fixtures (C's aae8009 pattern, mirrored from secretgate 0529210 / hookpack 513008d — this closes the fleet mirror).
   # A green "verified" badge means nothing unless the same code fails these.
