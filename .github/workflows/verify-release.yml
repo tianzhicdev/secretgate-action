@@ -9,17 +9,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Receipt gating via C's reusable workflow (v0.7). Cross-repo composite
+  # Receipt gating via C's reusable workflow  (v0.8). Cross-repo composite
   # actions do NOT resolve; reusable workflows are GitHub's sharing primitive.
   # NOTE: quote the require address — YAML 1.1 parses an unquoted 0x... as a
   # hex int ("invalid for type tag:yaml.org,2002:int", run dies at 0s).
   verify-action-yml:
-    uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.7
+    uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.8
     with:
       receipt: "proofs/action-v1.2.3-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
   verify-summarize:
-    uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.7
+    uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.8
     with:
       receipt: "proofs/summarize-v1.2.3-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: tianzhicdev/ethkey-lite
-          ref: v0.7
+          ref: v0.8
           path: .ethkey-tools
           persist-credentials: false
       - uses: actions/setup-python@v5
