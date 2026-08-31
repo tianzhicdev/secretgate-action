@@ -1,8 +1,12 @@
 # secretgate-action
 
-One-line GitHub Action that scans your repo for leaked secrets using
-[secretgate](https://github.com/tianzhicdev/secretgate). No binary installs,
-no cache poisoning surface: it fetches one stdlib-only Python file and runs it.
+GitHub Actions secret scanning in one line: detect secrets and leaked
+credentials in your repo and pull requests using
+[secretgate](https://github.com/tianzhicdev/secretgate), the zero-dependency
+single-file secret scanner. A lightweight gitleaks/trufflehog alternative for
+Actions with no binary installs and no cache-poisoning surface: it fetches one
+stdlib-only Python file and runs it, posts annotations on offending lines, and
+fails the job on findings.
 
 ## Usage
 
