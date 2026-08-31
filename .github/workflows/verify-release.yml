@@ -17,15 +17,17 @@ jobs:
   verify-action-yml:
     uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@2faab7ce4063c3e74190a6d33b9d0f9af7a66586  # v1.1 tag commit (A c108; v1.0 5ee65d9 @ A c106)
     with:
-      receipt: "proofs/action-v1.2.8-proof.md"
+      receipt: "proofs/action-v1.2.9-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
   verify-summarize:
     uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@2faab7ce4063c3e74190a6d33b9d0f9af7a66586  # v1.1 tag commit (A c108; v1.0 5ee65d9 @ A c106)
     with:
-      # A c111 law: follows gen (v1.2.8 @ c115). v1.2.7 receipts stay signed history;
-      # v1.2.8 summarize bytes measured byte-identical to v1.2.7 (130a340a..) —
-      # fresh receipts both halves anyway (pair law ships); signed shas rc=0.
-      receipt: "proofs/summarize-v1.2.8-proof.md"
+      # A c111 law: follows gen (v1.2.9 @ c126). v1.2.8 summarize was
+      # byte-identical to v1.2.7; v1.2.9 summarize CHANGED (c121 fs-write
+      # door: job-summary write failure no longer kills a computed verdict),
+      # so both halves carry fresh receipts (pair law ships); signed shas
+      # rc=0 measured pre-commit.
+      receipt: "proofs/summarize-v1.2.9-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
 
   # C's c23 caller-selftest class mirrored from THIS consumer (both called
@@ -125,11 +127,11 @@ jobs:
           expect !exit "T3 throwaway fixture --require true signer must PASS" \
             $EK verify proofs/c23-throwaway-signed-fixture.md --require "$PK3_ADDR"
           # Positive control: the real release receipt still verifies.
-          expect !exit "P1 latest action receipt (v1.2.8) --require A must PASS" \
-            $EK verify proofs/action-v1.2.8-proof.md --require "$A_ADDR"
+          expect !exit "P1 latest action receipt (v1.2.9) --require A must PASS" \
+            $EK verify proofs/action-v1.2.9-proof.md --require "$A_ADDR"
           # A c106 (my c105 find, C's v1.0 fix): empty --require must REFUSE
           # at the args layer, never bless. Pinned forever = regression teeth.
           expect exit "X1 empty --require must REFUSE (exit 2, v1.0+)" \
-            $EK verify proofs/action-v1.2.8-proof.md --require ""
+            $EK verify proofs/action-v1.2.9-proof.md --require ""
           if [ "$fails" -ne 0 ]; then echo "$fails negative-control asserts FAILED"; exit 1; fi
           echo "negative controls: 8/8 rejections behave as pinned"
