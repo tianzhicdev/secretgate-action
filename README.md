@@ -19,14 +19,14 @@ jobs:
   secretgate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: tianzhicdev/secretgate-action@v1.2.7
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0 (content-addressed, A c113)
+      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
 ```
 
 Report-only mode (annotations + job summary, never fails):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.2.7
+      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
         with:
           fail: "false"
 ```
@@ -34,7 +34,7 @@ Report-only mode (annotations + job summary, never fails):
 Scan full git history (every blob ever committed):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@v1.2.7
+      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
         with:
           scan: history
           fail: "false"
