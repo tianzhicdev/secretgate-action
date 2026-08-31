@@ -22,7 +22,10 @@ jobs:
   verify-summarize:
     uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@2faab7ce4063c3e74190a6d33b9d0f9af7a66586  # v1.1 tag commit (A c108; v1.0 5ee65d9 @ A c106)
     with:
-      receipt: "proofs/summarize-v1.2.6-proof.md"
+      # A c111: follows gen (v1.2.7). v1.2.6 receipt stays signed history;
+      # v1.2.7 summarize bytes measured byte-identical (130a340a..) — new
+      # receipt = created-field bump, signed sha re-measured rc=0.
+      receipt: "proofs/summarize-v1.2.7-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
 
   # C's c23 caller-selftest class mirrored from THIS consumer (both called
