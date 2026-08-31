@@ -60,7 +60,13 @@ import sys
 BLOCKLIST = frozenset()
 
 # Tracked .md files outside proofs/ must be enumerated here (docs).
-DOC_ALLOW = {"README.md"}
+# A c56 (C c47 frozenset class, pair-back): a bare {...} is a SET only while
+# NON-EMPTY — the cleanup that removes the LAST name makes it an empty DICT
+# and the first `&` TypeErrors on the deletion commit. Declaration site
+# pinned by harness F8 (empty stays GREEN, prints 0/N) + F8m (bare {} at
+# empty must die naming TypeError). Membership-only uses (DOC_ALLOW `in`)
+# mask the class silently, so both are declared frozenset().
+DOC_ALLOW = frozenset({"README.md"})
 
 
 def tracked_files():
