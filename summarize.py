@@ -96,17 +96,29 @@ def main() -> int:
             file=sys.stderr,
         )
 
-    with open(summary_path, "a") as summ:
-        summ.write(f"### secretgate: {len(findings)} finding(s)\n\n")
-        if findings:
-            summ.write("| Severity | File | Line | Rule | Preview |\n")
-            summ.write("|---|---|---|---|---|\n")
-            for f in findings:
-                summ.write(
-                    f"| {f.get('severity', '?')} | `{f.get('path', '?')}` | "
-                    f"{f.get('line', 1)} | {f.get('rule', '?')} | "
-                    f"`{f.get('secret_preview', '')}` |\n"
-                )
+    # Presentation-vs-verdict separation (c121 fs-door matrix): the summary
+    # file is DECORATION — the annotations above + the count below ARE the
+    # verdict. An unwritable summary path (dangling-symlink $GITHUB_STEP_
+    # SUMMARY, mode 500 dir, path-is-directory) must degrade to a warning,
+    # NOT crash with a traceback rc=1 while stdout stays empty: a crash
+    # here lost a real, already-computed verdict (measured rc=1 + Traceback
+    # on every write-side shape pre-fix).
+    try:
+        with open(summary_path, "a") as summ:
+            summ.write(f"### secretgate: {len(findings)} finding(s)\n\n")
+            if findings:
+                summ.write("| Severity | File | Line | Rule | Preview |\n")
+                summ.write("|---|---|---|---|---|\n")
+                for f in findings:
+                    summ.write(
+                        f"| {f.get('severity', '?')} | `{f.get('path', '?')}` | "
+                        f"{f.get('line', 1)} | {f.get('rule', '?')} | "
+                        f"`{f.get('secret_preview', '')}` |\n"
+                    )
+    except OSError as exc:
+        print(f"::warning::job summary {summary_path} unwritable ({exc}) — "
+              "verdict unaffected; fix the runner, not the scan",
+              file=sys.stderr)
 
     print(len(findings))
     return 0

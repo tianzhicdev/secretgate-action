@@ -51,6 +51,8 @@ FAKE_ENGINES = {
     "missing": ("MISSING_FILE", 0),   # write nothing to sg.json at all
     "clean": ("[]\n", 0),
     "one_finding": (None, 1),
+    "clean_w1": ("[]\n", 0),   # W1: clean verdict, unwritable summary
+    "clean_w2": ("[]\n", 0),   # W2: same cell on guard-stripped mutant
 }
 
 
@@ -94,11 +96,12 @@ def main():
             '[{"path": "conf.py", "line": 1, "severity": "HIGH", '
             '"rule": "aws-access-key", "secret_preview": "%s"}]\n' % token)
 
-        def drive(case):
+        def drive(case, summary=None):
             out = os.path.join(tmp, "ghout_" + case)
             json_out = out + ".json"
-            summary = out + ".summary"
-            open(summary, "w").close()
+            if summary is None:
+                summary = out + ".summary"
+                open(summary, "w").close()
             fake = os.path.join(tmp, "fake_engine_" + case + ".py")
             stdout, rc = FAKE_ENGINES[case]
             if stdout is None:
@@ -154,6 +157,66 @@ def main():
         r, pub = drive("one_finding")
         results.append(("P:one_finding publishes findings=1 exit 0",
                         r.returncode == 0 and pub == "1", r, pub))
+        # W1 (c121 fs-door matrix): UNWRITABLE summary path (path-is-a-dir)
+        # on a CLEAN scan. The summary is presentation; the verdict is the
+        # published count. Pre-fix: summarize crashed rc=1 with a traceback,
+        # stdout empty -> step died and LOST a real clean verdict. Post-fix
+        # expectation: exit 0, findings=0 published, ::warning on stderr.
+        # FLIP-verified: strip the try/except from summarize bytes below and
+        # this cell goes red deterministically.
+        r, pub = drive("clean_w1", summary=scan_dir)
+        results.append(("W1 unwritable summary degrades: publishes "
+                        "findings=0 exit 0 + ::warning",
+                        r.returncode == 0 and pub == "0"
+                        and "::warning::job summary" in r.stderr
+                        and "Traceback" not in r.stderr, r, pub))
+        # W2 (mutation control, same cell shape on UNGUARDED bytes): rebuild
+        # the PRE-FIX success-path block — same writes, no try/except (the
+        # try body dedented, except+warning dropped) -> step must go rc!=0
+        # with a traceback and publish NOTHING. Proves W1's green is the
+        # fix, not a fluke of the fixture. SELF-CATCH c121: first mutant
+        # blind-replaced `try:`/`except` by text and hit the _fail leg's
+        # try first -> orphaned except, SyntaxError. A mutant must COMPILE
+        # to test behavior: dedent-block rebuild + py_compile gate BEFORE
+        # driving.
+        guard_head = ("    # Presentation-vs-verdict separation")
+        tail_anchor = "    print(len(findings))"
+        gi = summarize.index(guard_head)
+        ti = summarize.index(tail_anchor)
+        block = summarize[gi:ti]
+        try_i = block.index("    try:\n")
+        exc_i = block.index("    except OSError as exc:")
+        # body = try-arm only (the write); the except-arm's ::warning print
+        # lives after exc_i and is excluded by the slice — that print is an
+        # artifact of the fix, absent from pre-fix code.
+        # SELF-CATCH c121 #2: first draft named this slice `body`, which
+        # SHADOWED the extracted bash step body in the same scope — the W2
+        # drive then fed Python source to bash ("syntax error near `with
+        # open('"). Renamed to try_arm; a helper's locals must not reuse an
+        # outer step-body name.
+        try_arm = block[try_i + len("    try:\n"):exc_i]
+        dedented = "\n".join(ln[4:] if ln.startswith("    ") else ln
+                             for ln in try_arm.rstrip("\n").split("\n")) + "\n\n"
+        stripped = summarize[:gi] + dedented + summarize[ti:]
+        assert "try:" not in dedented and "except" not in dedented \
+            and "with open(summary_path" in dedented \
+            and "::warning::job summary" not in dedented, \
+            "W2 mutation failed to rebuild the unguarded pre-fix block"
+        comp = os.path.join(tmp, "w2_compile_check.py")
+        with open(comp, "w") as f:
+            f.write(stripped)
+        cp = subprocess.run([sys.executable, "-m", "py_compile", comp],
+                            capture_output=True, text=True)
+        assert cp.returncode == 0, f"W2 mutant must compile: {cp.stderr[:200]}"
+        with open(os.path.join(action_path, "summarize.py"), "w") as f:
+            f.write(stripped)
+        r, pub = drive("clean_w2", summary=scan_dir)
+        results.append(("W2 mutant (guard stripped) LOSES the verdict: "
+                        "no findings line + nonzero + traceback",
+                        r.returncode != 0 and pub is None
+                        and "Traceback" in r.stderr, r, pub))
+        with open(os.path.join(action_path, "summarize.py"), "w") as f:
+            f.write(summarize)   # restore for any later leg / cleanliness
 
     ok = 0
     for name, passed, r, pub in results:
