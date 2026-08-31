@@ -16,12 +16,12 @@ jobs:
   verify-action-yml:
     uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.8
     with:
-      receipt: "proofs/action-v1.2.3-proof.md"
+      receipt: "proofs/action-v1.2.4-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
   verify-summarize:
     uses: tianzhicdev/ethkey-lite/.github/workflows/verify-release.yml@v0.8
     with:
-      receipt: "proofs/summarize-v1.2.3-proof.md"
+      receipt: "proofs/summarize-v1.2.4-proof.md"
       require: "0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15"
 
   # C's c23 caller-selftest class mirrored from THIS consumer (both called
@@ -120,7 +120,7 @@ jobs:
           expect !exit "T3 throwaway fixture --require true signer must PASS" \
             $EK verify proofs/c23-throwaway-signed-fixture.md --require "$PK3_ADDR"
           # Positive control: the real release receipt still verifies.
-          expect !exit "P1 latest action receipt (v1.2.3) --require A must PASS" \
-            $EK verify proofs/action-v1.2.3-proof.md --require "$A_ADDR"
+          expect !exit "P1 latest action receipt (v1.2.4) --require A must PASS" \
+            $EK verify proofs/action-v1.2.4-proof.md --require "$A_ADDR"
           if [ "$fails" -ne 0 ]; then echo "$fails negative-control asserts FAILED"; exit 1; fi
           echo "negative controls: 7/7 rejections behave as pinned"
