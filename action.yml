@@ -16,7 +16,7 @@ inputs:
     default: "true"
     required: false
   version:
-    description: "secretgate version/tag to fetch, e.g. 'v1.2.5' or 'main'."
+    description: "secretgate version/tag to fetch, e.g. 'v1.2.6' or 'main'."
     # v1.2.7: default v1.2.3 -> v1.2.5. Rationale measured, not vibes: the
     # c83/c84 bless-range sweeps + C c79/c80/c81 stranger re-scores proved
     # v1.2.3 silently blesses (a) dictionary-word-embedded secrets (fixed
@@ -25,7 +25,16 @@ inputs:
     # MEASURED bless class is a consumer-safety call; churn cost measured 0
     # (fleet blast radius 0 newly-exposed v1.2.4-vs-v1.2.5, c86). Pair law
     # unchanged: upgrade the pair, never one half.
-    default: "v1.2.5"
+    # v1.2.8: default v1.2.5 -> v1.2.6. Rationale: v1.2.6 closes the
+    # library-door empty-pattern suppression measured at v1.2.5 (C c109
+    # class, my c114 audit): a blank exclusion pattern at the PARAMETER
+    # layer suppressed any trailing-slash path = false clean for
+    # hand-rolled callers. CLI-only consumers were never exposed (c114 F3:
+    # this action wraps the CLI only = fleet blast radius 0 newly-exposed,
+    # same churn-cost-0 shape as the v1.2.5 row). summarize.py bytes
+    # measured byte-identical to v1.2.7 (130a340a..) — fresh receipts both
+    # halves anyway (pair law ships, c111 convention).
+    default: "v1.2.6"
     required: false
 
 outputs:
