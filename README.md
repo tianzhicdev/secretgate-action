@@ -81,6 +81,16 @@ python3 ethkey.py verify action-v1.2.6-proof.md \
   --require 0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15   # exit 0 == authentic
 ```
 
+**Upgrade the pair, never one half.** `summarize.py` and the `Scan` step in
+`action.yml` are one fail-closed contract (since v1.2.6): the step passes the
+engine's exit code through and refuses to publish a count when summarize
+rejects a corrupt pipeline; summarize in turn refuses to map damage to zero.
+Measured with a 2×2 generation matrix, each mixed cell (`v1.2.6 step + v1.2.5
+summarize`, and `v1.2.5 step + v1.2.6 summarize`) blesses a corrupted scan as
+`findings=0`. Pin by **tag** — every release attaches both receipts, so a tag
+upgrade moves both halves at once; do not vendor or override `summarize.py`
+independently of the step.
+
 No Python handy? Paste a receipt into the
 [browser verifier](https://tianzhicdev.github.io/ethkey-lite/receipt.html?require=0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15) <!-- secretgate: allow public tip addr -->
 — the link pre-fills the maintainer address, so verification is paste + go.
