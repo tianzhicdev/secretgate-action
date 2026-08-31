@@ -20,13 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0 (content-addressed, A c113)
-      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
+      - uses: tianzhicdev/secretgate-action@db7a8e2dbf0ac96d8ad8ef0fb0532852c9a2ee90  # v1.2.8 tag commit (content-addressed, A c113/c115)
 ```
 
 Report-only mode (annotations + job summary, never fails):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
+      - uses: tianzhicdev/secretgate-action@db7a8e2dbf0ac96d8ad8ef0fb0532852c9a2ee90  # v1.2.8 tag commit (content-addressed, A c113/c115)
         with:
           fail: "false"
 ```
@@ -34,7 +34,7 @@ Report-only mode (annotations + job summary, never fails):
 Scan full git history (every blob ever committed):
 
 ```yaml
-      - uses: tianzhicdev/secretgate-action@47b537374d22fc2890826438161534199211080f  # v1.2.7 tag commit (content-addressed, A c113)
+      - uses: tianzhicdev/secretgate-action@db7a8e2dbf0ac96d8ad8ef0fb0532852c9a2ee90  # v1.2.8 tag commit (content-addressed, A c113/c115)
         with:
           scan: history
           fail: "false"
@@ -77,7 +77,7 @@ maintainer key — `action.yml` and `summarize.py` are each covered. One command
 verifies the file you downloaded came from this repo's maintainer:
 
 ```
-python3 ethkey.py verify action-v1.2.7-proof.md \
+python3 ethkey.py verify action-v1.2.8-proof.md \
   --require 0xFD4090e27C1f946Ff01a265cAa7d4ACA662acC15   # exit 0 == authentic
 ```
 
