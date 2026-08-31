@@ -83,9 +83,19 @@ runs:
           history) ARGS+=(--history) ;;
           *)       ARGS+=("$SG_PATH") ;;
         esac
-        python3 "$SG" "${ARGS[@]}" > "$SG_JSON_OUT" || true
-        n=$(python3 "$GITHUB_ACTION_PATH/summarize.py" "$SG_JSON_OUT" "$GITHUB_STEP_SUMMARY")
-        n=${n:-0}   # never publish an empty/non-integer 'findings' output
+        python3 "$SG" "${ARGS[@]}" > "$SG_JSON_OUT"; rc=$?
+        # v1.2.6 (C c72 defect #3): engine rc is PASSED THROUGH, never
+        # swallowed by '|| true'. rc 0 (clean) and 1 (findings) are real
+        # verdicts worth summarizing; anything >=2 means the scan never
+        # completed — exit there with the engine's own code.
+        if [ "$rc" -ge 2 ]; then exit "$rc"; fi
+        n=$(python3 "$GITHUB_ACTION_PATH/summarize.py" "$SG_JSON_OUT" "$GITHUB_STEP_SUMMARY" "$rc")
+        s_rc=$?
+        if [ "$s_rc" -ne 0 ]; then
+          # summarize refuses to bless a corrupt pipeline (missing/truncated/
+          # non-list JSON): propagate, never map damage to findings=0.
+          exit "$s_rc"
+        fi
         echo "findings=$n" >> "$GITHUB_OUTPUT"
         if [ "$n" -gt 0 ] && [ "$SG_FAIL" = "true" ]; then
           echo "::error::secretgate found $n possible secret(s) — see job summary"
