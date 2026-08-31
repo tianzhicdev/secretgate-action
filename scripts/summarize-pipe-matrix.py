@@ -121,7 +121,8 @@ def main():
                 "GITHUB_ACTION_PATH": action_path,
             })
             r = subprocess.run(["bash", "-c", body], env=env,
-                               capture_output=True, text=True, cwd=tmp)
+                               capture_output=True, text=True, cwd=tmp,
+                               timeout=120)
             published = None
             if os.path.exists(out):
                 lines = [l for l in open(out).read().splitlines()
