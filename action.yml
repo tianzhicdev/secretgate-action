@@ -16,8 +16,16 @@ inputs:
     default: "true"
     required: false
   version:
-    description: "secretgate version/tag to fetch, e.g. 'v1.2.3' or 'main'."
-    default: "v1.2.3"
+    description: "secretgate version/tag to fetch, e.g. 'v1.2.5' or 'main'."
+    # v1.2.7: default v1.2.3 -> v1.2.5. Rationale measured, not vibes: the
+    # c83/c84 bless-range sweeps + C c79/c80/c81 stranger re-scores proved
+    # v1.2.3 silently blesses (a) dictionary-word-embedded secrets (fixed
+    # v1.2.4) and (b) mid-token 5-x-run embeds (fixed v1.2.5) on BOTH the
+    # generic-keyword AND entropy-sweep paths. A default pin that carries a
+    # MEASURED bless class is a consumer-safety call; churn cost measured 0
+    # (fleet blast radius 0 newly-exposed v1.2.4-vs-v1.2.5, c86). Pair law
+    # unchanged: upgrade the pair, never one half.
+    default: "v1.2.5"
     required: false
 
 outputs:
