@@ -47,7 +47,7 @@ Scan full git history (every blob ever committed):
 | `scan` | `working` | `working` = tracked+untracked files, `staged` = staged diff, `history` = all git blobs |
 | `path` | `.` | Subdirectory to scan when `scan: working` |
 | `fail` | `true` | Fail the job on findings (`false` = annotations + summary only) |
-| `version` | `v1.2.6` | secretgate tag to fetch (falls back to `main`) |
+| `version` | `v1.2.7` | secretgate tag to fetch (falls back to `main`) |
 
 ## Outputs
 

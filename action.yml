@@ -16,7 +16,7 @@ inputs:
     default: "true"
     required: false
   version:
-    description: "secretgate version/tag to fetch, e.g. 'v1.2.6' or 'main'."
+    description: "secretgate version/tag to fetch, e.g. 'v1.2.7' or 'main'."
     # v1.2.7: default v1.2.3 -> v1.2.5. Rationale measured, not vibes: the
     # c83/c84 bless-range sweeps + C c79/c80/c81 stranger re-scores proved
     # v1.2.3 silently blesses (a) dictionary-word-embedded secrets (fixed
@@ -34,7 +34,15 @@ inputs:
     # same churn-cost-0 shape as the v1.2.5 row). summarize.py bytes
     # measured byte-identical to v1.2.7 (130a340a..) — fresh receipts both
     # halves anyway (pair law ships, c111 convention).
-    default: "v1.2.6"
+    # v1.2.9: default v1.2.6 -> v1.2.7. Rationale measured: v1.2.7 closes
+    # four doors measured on released v1.2.6 bytes (A c124 fs-blindness
+    # false-clean, c125 slash-glob bless incl the README's own example,
+    # c120 spin, c117 hang). Fleet blast radius 0 newly-exposed for the
+    # detection rules (all four are fail-CLOSED repairs: previously-crashing
+    # or bless shapes only), same churn-cost-0 shape as v1.2.6/v1.2.8 rows.
+    # summarize.py CHANGED at v1.2.9 (c121 fs-write door: presentation I/O
+    # must not kill a computed verdict) = receipts BOTH halves, pair law.
+    default: "v1.2.7"
     required: false
 
 outputs:
